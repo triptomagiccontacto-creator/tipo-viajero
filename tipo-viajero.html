@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué tipo de viajero eres?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #063573 0%, #2594D9 100%);
+            min-height: 100vh;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background: linear-gradient(135deg, #063573 0%, #2594D9 100%);
+            z-index: -1;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 95%;
+            max-height: 98vh;
+            height: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 10px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #063573 0%, #0B6BBF 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .tagline {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .welcome-screen h1 {
+            color: #063573;
+            font-size: 24px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .welcome-screen p {
+            color: #0B6BBF;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .question-container {
+            display: none;
+        }
+        
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #BBD3F2;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #063573 0%, #2594D9 100%);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .question-number {
+            color: #2594D9;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .question-text {
+            color: #063573;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            background: #F2F2F2;
+            border: 3px solid transparent;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #063573;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option:hover {
+            background: #BBD3F2;
+            border-color: #2594D9;
+            transform: translateX(5px);
+        }
+        
+        .option-emoji {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #063573 0%, #2594D9 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(6, 53, 115, 0.3);
+        }
+        
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+        
+        .result-screen.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .result-emoji {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 1s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .result-title {
+            color: #063573;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .result-subtitle {
+            color: #2594D9;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .result-description {
+            background: #BBD3F2;
+            padding: 16px;
+            border-radius: 12px;
+            color: #063573;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .cta-box {
+            background: linear-gradient(135deg, #2594D9 0%, #0B6BBF 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .cta-box h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .cta-box p {
+            font-size: 13px;
+            margin-bottom: 15px;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+        
+        .cta-benefits {
+            font-size: 11px;
+            margin-top: 12px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        a {
+            display: block;
+            width: 100%;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .welcome-screen h1 {
+                font-size: 22px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .option {
+                padding: 12px 14px;
+                font-size: 13px;
+            }
+            
+            .option-emoji {
+                font-size: 20px;
+            }
+            
+            .result-title {
+                font-size: 24px;
+            }
+            
+            .result-emoji {
+                font-size: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">ayleen.viajes_</div>
+            <div class="tagline">Tu agente Disney y Universal</div>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-screen" id="welcomeScreen">
+                <h1>✈️ ¿Qué tipo de viajero eres? 🎭</h1>
+                <p>Descubre tu personalidad viajera y te diré el destino PERFECTO para ti</p>
+                <button class="btn btn-primary" onclick="startQuiz()">¡Descubrirlo! ✨</button>
+            </div>
+            
+            <div class="question-container" id="quizScreen">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                
+                <div class="question-number" id="questionNumber"></div>
+                <div class="question-text" id="questionText"></div>
+                
+                <div class="options" id="optionsContainer"></div>
+            </div>
+            
+            <div class="result-screen" id="resultScreen">
+                <div class="result-emoji" id="resultEmoji"></div>
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-subtitle" id="resultSubtitle"></div>
+                <div class="result-description" id="resultDescription"></div>
+                
+                <div class="cta-box">
+                    <h3>✨ ¿Lista para tu próxima aventura?</h3>
+                    <p>Da clic y solicita tu cotización personalizada. Te responderé en menos de 24 horas 100% GRATIS 🎁</p>
+                    
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdlx2q9bst2XKV3sMM3xU5mKFZbulqpll6csde2z74QFLbRfQ/viewform" target="_blank">
+                        <button class="btn btn-primary" style="background: white; color: #063573; font-size: 16px;">
+                            📝 Solicitar Cotización GRATIS
+                        </button>
+                    </a>
+                    
+                    <div class="cta-benefits">
+                        💙 Precios oficiales + Descuentos<br>
+                        💙 Planificación e itinerario incluido<br>
+                        💙 Asistencia 24/7 durante tu viaje
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="restartQuiz()" style="background: #F2F2F2; color: #063573;">
+                    🔄 Hacer el quiz de nuevo
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const questions = [
+            {
+                question: "¿Qué te emociona MÁS de un viaje?",
+                options: [
+                    { text: "Vivir momentos mágicos e inolvidables", emoji: "✨", type: "magico" },
+                    { text: "Sentir adrenalina pura", emoji: "🎢", type: "aventurero" },
+                    { text: "Capturar fotos increíbles", emoji: "📸", type: "fotogenico" },
+                    { text: "Relajarme sin preocuparme de nada", emoji: "🧘", type: "relax" }
+                ]
+            },
+            {
+                question: "¿Cómo describes tu energía en vacaciones?",
+                options: [
+                    { text: "Quiero aprovechar CADA minuto del día", emoji: "⚡", type: "organizado" },
+                    { text: "Intenso de día, relajado de noche", emoji: "🌅", type: "aventurero" },
+                    { text: "Tranquilo pero con actividades divertidas", emoji: "🏖️", type: "relax" },
+                    { text: "Un mix perfecto de todo", emoji: "🎭", type: "magico" }
+                ]
+            },
+            {
+                question: "¿Qué tipo de comida te llama más?",
+                options: [
+                    { text: "Experiencias gastronómicas únicas", emoji: "🍽️", type: "foodie" },
+                    { text: "Comida rápida para seguir con las atracciones", emoji: "🍔", type: "organizado" },
+                    { text: "Todo incluido sin pensarlo", emoji: "🍕", type: "relax" },
+                    { text: "Restaurantes temáticos instagrameables", emoji: "📷", type: "fotogenico" }
+                ]
+            },
+            {
+                question: "Elige tu mood perfecto:",
+                options: [
+                    { text: "Castillos, princesas y nostalgia", emoji: "🏰", type: "magico" },
+                    { text: "Películas, sets y Harry Potter", emoji: "🎬", type: "cine" },
+                    { text: "Mar, atardeceres y puertos exóticos", emoji: "🌊", type: "explorador" },
+                    { text: "Montañas rusas épicas", emoji: "🎡", type: "aventurero" }
+                ]
+            },
+            {
+                question: "¿Con quién viajas?",
+                options: [
+                    { text: "Familia con niños pequeños", emoji: "👶", type: "relax" },
+                    { text: "Adolescentes/adultos jóvenes", emoji: "🧑‍🤝‍🧑", type: "aventurero" },
+                    { text: "Pareja (sin niños)", emoji: "💑", type: "fotogenico" },
+                    { text: "Grupo multigeneracional", emoji: "👨‍👩‍👧‍👦", type: "magico" }
+                ]
+            },
+            {
+                question: "¿Qué prefieres?",
+                options: [
+                    { text: "Planear cada detalle del viaje", emoji: "📋", type: "organizado" },
+                    { text: "Que alguien más lo planee por mí", emoji: "🎁", type: "relax" },
+                    { text: "Un mix: plan base pero flexible", emoji: "🗓️", type: "magico" },
+                    { text: "Ir con la flow", emoji: "🌊", type: "explorador" }
+                ]
+            },
+            {
+                question: "Tu palabra clave al viajar:",
+                options: [
+                    { text: "EMOCIÓN", emoji: "🎉", type: "magico" },
+                    { text: "ADRENALINA", emoji: "💥", type: "aventurero" },
+                    { text: "ESTÉTICA", emoji: "✨", type: "fotogenico" },
+                    { text: "CONFORT", emoji: "☁️", type: "relax" }
+                ]
+            }
+        ];
+        
+        const profiles = {
+            magico: { emoji: "🏰", title: "El Mágico Emocional", subtitle: "Disney World es TU lugar", description: "Amas los personajes, la atmósfera, la magia en cada rincón. Te emocionas con los castillos, lloras en los shows y quieres fotos tiernas con Mickey. Disney World tiene 4 parques temáticos llenos de esa magia que buscas. Cada detalle está pensado para hacerte sentir en un cuento de hadas. ✨", recommendation: "DISNEY WORLD" },
+            aventurero: { emoji: "⚡", title: "El Aventurero Adrenalina", subtitle: "Universal te está esperando", description: "VelociCoaster, Hulk, montañas rusas que te dejan sin aliento... eso es lo tuyo. Buscas atracciones intensas, simuladores de última generación y experiencias que eleven tu ritmo cardíaco. Universal tiene las atracciones más extremas de Orlando. 🎢", recommendation: "UNIVERSAL ORLANDO" },
+            fotogenico: { emoji: "📸", title: "El Fotogénico Estético", subtitle: "Disney + Crucero = Oro puro", description: "Tu Instagram necesita contenido de calidad. Disney te da esos fondos mágicos, castillos de cuento y rincones instagrameables. Y un crucero Disney? Fotos en el mar, atardeceres, la proa del barco... *chef's kiss*. Perfecta combinación para tu feed. 🌅", recommendation: "DISNEY + CRUCERO" },
+            relax: { emoji: "🧘", title: "El Familiar Relax", subtitle: "Crucero Disney sin estrés", description: "Todo incluido, cero preocupaciones, actividades para niños mientras tú descansas. El crucero Disney es comodidad pura: comida ilimitada, entretenimiento para todas las edades, y tú solo disfrutas. Sin planear horarios ni correr. Pura tranquilidad con magia. 🚢", recommendation: "CRUCERO DISNEY" },
+            foodie: { emoji: "🍽️", title: "El Foodie", subtitle: "Crucero o EPCOT", description: "La comida es parte esencial de tu experiencia. Un crucero Disney tiene restaurantes rotacionales y comida de clase mundial incluida. EPCOT en Disney World tiene 11 pabellones internacionales donde puedes comer alrededor del mundo. Ambos son el paraíso para un foodie como tú. 🌮🍝🍣", recommendation: "CRUCERO o EPCOT (Disney World)" },
+            organizado: { emoji: "📋", title: "El Organizado 'quiero TODO'", subtitle: "Disney World necesita tu planeación", description: "Amas los itinerarios, maximizar cada minuto, estrategias de parques. Disney World es PERFECTO para ti: 4 parques, reservas, Genie+, planificación de 60 días... requiere organización y tú BRILLAS en eso. Además, yo te ayudo a optimizarlo todo. 🎯", recommendation: "DISNEY WORLD" },
+            cine: { emoji: "🎬", title: "El Cine Lover", subtitle: "Universal es tu película favorita", description: "Harry Potter, Minions, Jurassic Park, simuladores 4D, sets de películas reales... Universal es un parque temático para fanáticos del cine. Caminas POR TUS PELÍCULAS FAVORITAS. Si amas el séptimo arte, este es tu destino. 🎥", recommendation: "UNIVERSAL ORLANDO" },
+            explorador: { emoji: "🌊", title: "El Explorador Naviero", subtitle: "Crucero Disney para descubrir", description: "Te encanta descubrir nuevos destinos sin complicaciones. Un crucero Disney te lleva a múltiples lugares (Bahamas, Caribe, isla privada Castaway Cay) mientras disfrutas de una experiencia relajada pero llena de actividades. Lo mejor de ambos mundos. ⚓", recommendation: "CRUCERO DISNEY" }
+        };
+        
+        let currentQuestion = 0;
+        let answers = { magico: 0, aventurero: 0, fotogenico: 0, relax: 0, foodie: 0, organizado: 0, cine: 0, explorador: 0 };
+        
+        function startQuiz() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('quizScreen').classList.add('active');
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('questionNumber').textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <span class="option-emoji">${option.emoji}</span>
+                    <span>${option.text}</span>
+                `;
+                optionDiv.onclick = () => selectAnswer(option.type);
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+        
+        function selectAnswer(type) {
+            answers[type]++;
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                document.getElementById('quizScreen').classList.remove('active');
+                setTimeout(() => {
+                    document.getElementById('quizScreen').classList.add('active');
+                    showQuestion();
+                }, 300);
+            } else {
+                showResult();
+            }
+        }
+        
+        function showResult() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('active');
+            
+            const winner = Object.keys(answers).reduce((a, b) => answers[a] > answers[b] ? a : b);
+            const profile = profiles[winner];
+            
+            document.getElementById('resultEmoji').textContent = profile.emoji;
+            document.getElementById('resultTitle').textContent = profile.title;
+            document.getElementById('resultSubtitle').textContent = profile.subtitle;
+            document.getElementById('resultDescription').innerHTML = `
+                <strong>Tu destino perfecto:</strong> ${profile.recommendation}<br><br>
+                ${profile.description}
+            `;
+        }
+        
+        function restartQuiz() {
+            currentQuestion = 0;
+            answers = { magico: 0, aventurero: 0, fotogenico: 0, relax: 0, foodie: 0, organizado: 0, cine: 0, explorador: 0 };
+            
+            document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('welcomeScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
